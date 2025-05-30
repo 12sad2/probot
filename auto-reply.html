@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>الرد التلقائي</title>
+  <style>
+    body { background: #007BFF; color: white; padding: 20px; font-family: sans-serif; direction: rtl; }
+    input, button { display: block; margin: 10px 0; padding: 10px; font-size: 16px; border: none; border-radius: 5px; }
+    .blue { background: blue; color: white; }
+    .black { background: black; color: white; }
+  </style>
+</head>
+<body>
+  <h2>إضافة رد تلقائي</h2>
+  <input type="text" id="trigger" placeholder="الرسالة">
+  <input type="text" id="response" placeholder="الرد">
+  <button class="blue" onclick="saveReply()">حفظ التغييرات</button>
+  <button class="black" onclick="window.location.href='index.html'">إلغاء</button>
+  <script>
+    function saveReply() {
+      const trigger = document.getElementById('trigger').value;
+      const response = document.getElementById('response').value;
+      fetch('/api/auto-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger, response })
+      }).then(res => res.json()).then(data => {
+        alert(data.success ? "✅ تم الحفظ" : "❌ فشل: " + data.error);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>لوحة تحكم بوت ديسكورد</title>
+  <style>
+    body { background: #007BFF; font-family: sans-serif; color: white; padding: 20px; direction: rtl; }
+    button, select { padding: 10px; margin: 5px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
+    .danger { background: red; color: white; }
+    .safe { background: green; color: white; }
+    .dark { background: black; color: white; }
+    .section { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>لوحة تحكم بوت ديسكورد</h1>
+  <div class="section">
+    <label for="servers">سيرفرات:</label>
+    <select id="servers">
+      <option value="123456789">سيرفر تجريبي</option>
+    </select>
+  </div>
+  <div class="section">
+    <button onclick="showPrompt('ban')" class="danger">Ban</button>
+    <button onclick="showPrompt('kick')" class="danger">Kick</button>
+    <button onclick="showPrompt('unban')" class="safe">Unban</button>
+    <button onclick="showPrompt('role')" class="safe">Role</button>
+    <button onclick="sendAction('lock')" class="dark">🔒 Lock</button>
+    <button onclick="sendAction('unlock')" class="dark">🔓 Unlock</button>
+  </div>
+  <div class="section">
+    <button onclick="window.location.href='auto-reply.html'" class="safe">الرد التلقائي</button>
+  </div>
+  <script>
+    function showPrompt(action) {
+      const userId = prompt("اكتب اختصار المستخدم (مثلاً: لف):");
+      if (userId) sendAction(action, userId);
+    }
+
+    function sendAction(action, userId = '') {
+      fetch(`/api/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          guildId: document.getElementById("servers").value,
+          userId: userId,
+          reason: 'من الموقع'
+        })
+      }).then(res => res.json()).then(data => {
+        alert(data.success ? "✅ تم تنفيذ الأمر" : "❌ خطأ: " + data.error);
+      });
+    }
+  </script>
+</body>
+</html>
