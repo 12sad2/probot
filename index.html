@@ -2,54 +2,191 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>لوحة تحكم بوت ديسكورد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nasser 497©</title>
   <style>
-    body { background: #007BFF; font-family: sans-serif; color: white; padding: 20px; direction: rtl; }
-    button, select { padding: 10px; margin: 5px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
-    .danger { background: red; color: white; }
-    .safe { background: green; color: white; }
-    .dark { background: black; color: white; }
-    .section { margin-top: 20px; }
+    body {
+      background: linear-gradient(135deg, #1a0000, #000000);
+      color: #eee;
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      padding: 0; margin: 0;
+    }
+    header, footer {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 20px;
+      color: #ff4444;
+    }
+    main {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #222;
+      color: #eee;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px;
+      margin-top: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .btn-green {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-red {
+      background-color: #dc3545;
+      color: white;
+    }
+    #status {
+      text-align: center;
+      margin-top: 10px;
+      min-height: 20px;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
   </style>
 </head>
 <body>
-  <h1>لوحة تحكم بوت ديسكورد</h1>
-  <div class="section">
-    <label for="servers">سيرفرات:</label>
-    <select id="servers">
-      <option value="123456789">سيرفر تجريبي</option>
-    </select>
-  </div>
-  <div class="section">
-    <button onclick="showPrompt('ban')" class="danger">Ban</button>
-    <button onclick="showPrompt('kick')" class="danger">Kick</button>
-    <button onclick="showPrompt('unban')" class="safe">Unban</button>
-    <button onclick="showPrompt('role')" class="safe">Role</button>
-    <button onclick="sendAction('lock')" class="dark">🔒 Lock</button>
-    <button onclick="sendAction('unlock')" class="dark">🔓 Unlock</button>
-  </div>
-  <div class="section">
-    <button onclick="window.location.href='auto-reply.html'" class="safe">الرد التلقائي</button>
-  </div>
+
+  <header>Nasser 497©</header>
+
+  <main>
+    <label>اكتب التوكنات (توكن في كل سطر):</label>
+    <textarea id="tokenInput" rows="6" placeholder="توكن واحد أو أكثر..."></textarea>
+
+    <label>اكتب الايديات (مفصولة بفاصلة):</label>
+    <input type="text" id="idsInput" placeholder="مثلاً: 1381381865793130638,123456789" />
+
+    <label>قم بوضع الكلام:</label>
+    <textarea id="messageInput" rows="3" placeholder="النص الذي تريد إرساله"></textarea>
+
+    <button id="startBtn" class="btn-green">بدء الإرسال</button>
+    <button id="stopBtn" class="btn-red" disabled>إيقاف الإرسال</button>
+
+    <div id="status"></div>
+  </main>
+
+  <footer>Nasser 497©</footer>
+
   <script>
-    function showPrompt(action) {
-      const userId = prompt("اكتب اختصار المستخدم (مثلاً: لف):");
-      if (userId) sendAction(action, userId);
+    const tokenInput = document.getElementById('tokenInput');
+    const idsInput = document.getElementById('idsInput');
+    const messageInput = document.getElementById('messageInput');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const status = document.getElementById('status');
+
+    let sending = false;
+    let msgIndex = 0;
+    let tokenIndex = 0;
+    let validTokens = [];
+    const delay = 66; // 15 رسالة في الثانية (تقريبًا)
+
+    function validateToken(token) {
+      return fetch('https://discord.com/api/v9/users/@me', {
+        headers: { Authorization: token }
+      }).then(res => res.ok).catch(() => false);
     }
 
-    function sendAction(action, userId = '') {
-      fetch(`/api/${action}`, {
+    function sendMessage(token, channelId, message) {
+      return fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guildId: document.getElementById("servers").value,
-          userId: userId,
-          reason: 'من الموقع'
-        })
-      }).then(res => res.json()).then(data => {
-        alert(data.success ? "✅ تم تنفيذ الأمر" : "❌ خطأ: " + data.error);
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: message })
       });
     }
+
+    async function fastSend() {
+      if (!sending) return;
+
+      const currentToken = validTokens[tokenIndex % validTokens.length];
+      const currentChannel = ids[msgIndex % ids.length];
+      const msg = messageInput.value.trim();
+
+      try {
+        const res = await sendMessage(currentToken, currentChannel, msg);
+        status.textContent = res.ok
+          ? `✅ أُرسل إلى ${currentChannel} (توكن #${tokenIndex + 1})`
+          : `❌ فشل في الإرسال إلى ${currentChannel} (توكن #${tokenIndex + 1})`;
+      } catch (e) {
+        status.textContent = `❌ خطأ في الإرسال`;
+      }
+
+      msgIndex++;
+      tokenIndex++;
+
+      setTimeout(fastSend, delay);
+    }
+
+    startBtn.addEventListener('click', async () => {
+      const tokens = tokenInput.value.trim().split('\n').map(t => t.trim()).filter(Boolean);
+      ids = idsInput.value.trim().split(',').map(i => i.trim()).filter(Boolean);
+      const message = messageInput.value.trim();
+
+      if (tokens.length === 0 || ids.length === 0 || !message) {
+        status.textContent = 'يرجى ملء جميع الحقول.';
+        return;
+      }
+
+      status.textContent = 'جار التحقق من التوكنات...';
+
+      validTokens = [];
+      for (const token of tokens) {
+        const valid = await validateToken(token);
+        if (valid) validTokens.push(token);
+      }
+
+      if (validTokens.length === 0) {
+        status.textContent = '❌ لا يوجد أي توكن صالح.';
+        return;
+      }
+
+      msgIndex = 0;
+      tokenIndex = 0;
+      sending = true;
+
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      status.textContent = `✅ بدأ الإرسال مع ${validTokens.length} توكنات و ${ids.length} هدف.`;
+      fastSend();
+    });
+
+    stopBtn.addEventListener('click', () => {
+      sending = false;
+      status.textContent = '⏹️ تم إيقاف الإرسال.';
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    });
+
+    // منع فتح أدوات المطور و قائمة السياق
+    document.addEventListener('keydown', function (e) {
+      if (e.key === "F12") {
+        window.open('', '_self').close();
+      }
+    });
+
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      window.open('', '_self').close();
+    });
   </script>
 </body>
 </html>
