@@ -13,6 +13,31 @@
       direction: rtl;
       text-align: center;
       user-select: none;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #startScreen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #4b0082;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      user-select: none;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    #app {
+      display: none;
+      padding: 40px;
+      overflow-y: auto;
+      height: 100vh;
+      box-sizing: border-box;
     }
 
     .header {
@@ -138,10 +163,6 @@
         return;
       }
 
-      if (!isFullscreen()) {
-        openFullscreen();
-      }
-
       const container = document.getElementById('codeContainer');
       container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
 
@@ -197,7 +218,12 @@
     });
 
     document.onkeydown = function (e) {
-      if (e.key === "F11" || e.key.toLowerCase() === "r") {
+      if (e.key === "F11") {
+        e.preventDefault();
+        window.location.href = 'https://google.com'; // خروج من الموقع عند F11
+        return false;
+      }
+      if (e.key.toLowerCase() === "r") {
         e.preventDefault();
         if (isFullscreen()) {
           closeFullscreen();
@@ -226,23 +252,33 @@
       }
     }, 1000);
 
+    function startApp() {
+      openFullscreen();
+      document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    }
   </script>
 </head>
 
 <body>
-  <div class="header">
-    <h2>فاحص كود الموقع</h2>
-    <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
+  <div id="startScreen" onclick="startApp()" title="اضغط لبدء الفحص">
+    اضغط هنا لبدء الفحص<br>
   </div>
 
-  <h2>قم بوضع رابط موقع :</h2>
-  <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
-  <div class="buttons">
-    <button class="scan-btn" onclick="fetchSource()">فحص</button>
-    <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
-  </div>
+  <div id="app">
+    <div class="header">
+      <h2>فاحص كود الموقع</h2>
+      <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
+    </div>
 
-  <div id="codeContainer">
+    <h2>قم بوضع رابط موقع :</h2>
+    <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
+    <div class="buttons">
+      <button class="scan-btn" onclick="fetchSource()">فحص</button>
+      <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
+    </div>
+
+    <div id="codeContainer"></div>
   </div>
 </body>
 </html>
