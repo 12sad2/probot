@@ -29,6 +29,7 @@
       gap: 10px;
       margin-bottom: 20px;
       flex-wrap: wrap;
+      flex-direction: column;
     }
     h2 {
       color: #333;
@@ -40,6 +41,11 @@
       font-size: 14px;
       font-weight: normal;
       margin-top: 6px;
+    }
+    #visitorCount {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #4b0082;
     }
     input[type="text"] {
       width: 60%;
@@ -98,6 +104,8 @@
       <h2>فاحص كود الموقع</h2>
       <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
     </div>
+
+    <div id="visitorCount">الزيارات: 0</div>
 
     <h2>قم بوضع رابط موقع :</h2>
     <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
@@ -176,13 +184,27 @@
                .replace(/'/g, "&#039;");
   }
 
+  // عداد الزيارات (تخزين محلي)
+  function updateVisitorCount() {
+    let count = localStorage.getItem('visitorCount');
+    if (!count) {
+      count = 1;
+      localStorage.setItem('visitorCount', count);
+    } else {
+      count = parseInt(count) + 1;
+      localStorage.setItem('visitorCount', count);
+    }
+    document.getElementById('visitorCount').textContent = 'الزيارات: ' + count;
+  }
+
+  updateVisitorCount();
+
   document.addEventListener('contextmenu', e => {
     e.preventDefault();
     window.location.href = 'https://google.com';
   });
 
   document.addEventListener('keydown', e => {
-   
     if (
       (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 's' || e.key === 'a' || e.key === 'p')) ||
       (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
