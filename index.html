@@ -1,101 +1,222 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>موقع بلاغات</title>
+  <meta charset="UTF-8" />
+  <title>فاحص كود الموقع</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
+      font-family: Tahoma, sans-serif;
+      background-color: #f0f0f0;
+      padding: 40px;
+      direction: rtl;
       text-align: center;
+      user-select: none;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
     }
-
-    input[type="url"], button {
-      width: 100%;
+    #app {
+      padding: 40px;
+      overflow-y: auto;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      flex-direction: column;
+    }
+    h2 {
+      color: #333;
+      margin: 0;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      font-weight: normal;
+      margin-top: 6px;
+    }
+    #visitorCount {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #4b0082;
+    }
+    input[type="text"] {
+      width: 60%;
       padding: 10px;
       font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .buttons {
       margin-top: 10px;
-      margin-bottom: 10px;
     }
-
     button {
-      background-color: red;
-      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
       border: none;
+      color: white;
       cursor: pointer;
+      margin: 0 5px;
     }
-
-    .report-list {
+    .scan-btn {
+      background-color: green;
+    }
+    .copy-btn {
+      background-color: #007bff;
+    }
+    #codeContainer {
       margin-top: 30px;
       text-align: right;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
     }
-
-    .report-item {
-      background-color: #fff;
-      padding: 10px;
+    #codeContainer h3 {
+      color: #4b0082;
       margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      text-align: center;
     }
-
-    .status {
-      color: green;
-      font-weight: bold;
+    pre {
+      background-color: #4b0082;
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
+  <div id="app">
+    <div class="header">
+      <h2>فاحص كود الموقع</h2>
+      <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
+    </div>
 
-  <h1>🚨 موقع بلاغات</h1>
+    <div id="visitorCount">الزيارات: 0</div>
 
-  <p>قم بوضع رابط الموقع :</p>
-  <input type="url" id="siteUrl" placeholder="https://example.com" required>
-  <button onclick="submitReport()">بلاغ</button>
+    <h2>قم بوضع رابط موقع :</h2>
+    <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
+    <div class="buttons">
+      <button class="scan-btn" onclick="fetchSource()">فحص</button>
+      <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
+    </div>
 
-  <div class="report-list" id="reportList">
-    <h3>البلاغات المُرسلة:</h3>
+    <div id="codeContainer"></div>
   </div>
 
-  <script>
-    const reports = [];
+<script>
+  const blockedSites = [
+    "https://htmlsniffer.netlify.app",
+    "https://htmlsniffer.netlify.app/",
+    "https://515group.netlify.app",
+    "https://515group.netlify.app/"
+  ];
 
-    function submitReport() {
-      const urlInput = document.getElementById('siteUrl');
-      const url = urlInput.value.trim();
+  function isBlockedSite(url) {
+    return blockedSites.some(site => url.toLowerCase() === site.toLowerCase());
+  }
 
-      if (url === '') {
-        alert('يرجى إدخال رابط صحيح.');
-        return;
-      }
-
-      const report = {
-        url: url,
-        status: 'لم يُتابع بعد'
-      };
-
-      reports.push(report);
-      renderReports();
-      urlInput.value = '';
+  function fetchSource() {
+    const url = document.getElementById('urlInput').value.trim();
+    if (isBlockedSite(url)) {
+      alert('هذا الموقع محظور.');
+      window.location.href = 'https://google.com';
+      return;
     }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');
+      return;
+    }
+    const container = document.getElementById('codeContainer');
+    container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
 
-    function renderReports() {
-      const list = document.getElementById('reportList');
-      list.innerHTML = '<h3>البلاغات المُرسلة:</h3>';
-
-      reports.forEach(report => {
-        const div = document.createElement('div');
-        div.className = 'report-item';
-        div.innerHTML = `
-          <p><strong>الموقع:</strong> <a href="${report.url}" target="_blank">${report.url}</a></p>
-          <p><strong>الحالة:</strong> <span class="status">${report.status}</span></p>
+    fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
+      .then(response => {
+        if (!response.ok) throw new Error('لم يتمكن من جلب الكود.');
+        return response.text();
+      })
+      .then(data => {
+        container.innerHTML = `
+          <h3>عرض الكود</h3>
+          <pre id="result">${escapeHtml(data)}</pre>
         `;
-        list.appendChild(div);
+      })
+      .catch(error => {
+        container.innerHTML = `<h3>خطأ: ${escapeHtml(error.message)}</h3>`;
       });
-    }
-  </script>
+  }
 
+  function copyCode() {
+    const codeElem = document.getElementById('result');
+    if (!codeElem) {
+      alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
+      return;
+    }
+    const code = codeElem.textContent;
+    const url = document.getElementById('urlInput').value;
+    if (isBlockedSite(url)) {
+      window.location.href = 'https://google.com';
+      return;
+    }
+    navigator.clipboard.writeText(code)
+      .then(() => alert('تم نسخ الكود بنجاح!'))
+      .catch(() => alert('حدث خطأ أثناء النسخ.'));
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;")
+               .replace(/</g, "&lt;")
+               .replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;")
+               .replace(/'/g, "&#039;");
+  }
+
+  // عداد الزيارات (تخزين محلي)
+  function updateVisitorCount() {
+    let count = localStorage.getItem('visitorCount');
+    if (!count) {
+      count = 1;
+      localStorage.setItem('visitorCount', count);
+    } else {
+      count = parseInt(count) + 1;
+      localStorage.setItem('visitorCount', count);
+    }
+    document.getElementById('visitorCount').textContent = 'الزيارات: ' + count;
+  }
+
+  updateVisitorCount();
+
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    window.location.href = 'https://google.com';
+  });
+
+  document.addEventListener('keydown', e => {
+    if (
+      (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 's' || e.key === 'a' || e.key === 'p')) ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+      e.key === 'F12' || 
+      e.key === 'ContextMenu' || 
+      e.key === 'Apps'
+    ) {
+      e.preventDefault();
+      window.location.href = 'https://google.com';
+      return false;
+    }
+  });
+</script>
 </body>
 </html>
