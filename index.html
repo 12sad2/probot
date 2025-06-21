@@ -1,222 +1,93 @@
 <!DOCTYPE html>
-<html lang="ar">
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
 <head>
-  <meta charset="UTF-8" />
-  <title>فاحص كود الموقع</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: Tahoma, sans-serif;
-      background-color: #f0f0f0;
-      padding: 40px;
-      direction: rtl;
-      text-align: center;
-      user-select: none;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-    }
-    #app {
-      padding: 40px;
-      overflow-y: auto;
-      height: 100vh;
-      box-sizing: border-box;
-    }
-    .header {
-      display: flex;
-      justify-content: center;
-      align-items: baseline;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      flex-direction: column;
-    }
-    h2 {
-      color: #333;
-      margin: 0;
-      font-size: 28px;
-    }
-    .subtitle {
-      color: #666;
-      font-size: 14px;
-      font-weight: normal;
-      margin-top: 6px;
-    }
-    #visitorCount {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #4b0082;
-    }
-    input[type="text"] {
-      width: 60%;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .buttons {
-      margin-top: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-      color: white;
-      cursor: pointer;
-      margin: 0 5px;
-    }
-    .scan-btn {
-      background-color: green;
-    }
-    .copy-btn {
-      background-color: #007bff;
-    }
-    #codeContainer {
-      margin-top: 30px;
-      text-align: right;
-      max-width: 90%;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    #codeContainer h3 {
-      color: #4b0082;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    pre {
-      background-color: #4b0082;
-      color: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      max-height: 400px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      text-align: left;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-  </style>
+<title>Attention Required! | Cloudflare</title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/cf.errors.css" />
+<!--[if lt IE 9]><link rel="stylesheet" id='cf_styles-ie-css' href="/cdn-cgi/styles/cf.errors.ie.css" /><![endif]-->
+<style>body{margin:0;padding:0}</style>
+
+
+<!--[if gte IE 10]><!-->
+<script>
+  if (!navigator.cookieEnabled) {
+    window.addEventListener('DOMContentLoaded', function () {
+      var cookieEl = document.getElementById('cookie-alert');
+      cookieEl.style.display = 'block';
+    })
+  }
+</script>
+<!--<![endif]-->
+
+
 </head>
 <body>
-  <div id="app">
-    <div class="header">
-      <h2>فاحص كود الموقع</h2>
-      <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
-    </div>
+  <div id="cf-wrapper">
+    <div class="cf-alert cf-alert-error cf-cookie-error" id="cookie-alert" data-translate="enable_cookies">Please enable cookies.</div>
+    <div id="cf-error-details" class="cf-error-details-wrapper">
+      <div class="cf-wrapper cf-header cf-error-overview">
+        <h1 data-translate="block_headline">Sorry, you have been blocked</h1>
+        <h2 class="cf-subheadline"><span data-translate="unable_to_access">You are unable to access</span> probot.io</h2>
+      </div><!-- /.header -->
 
-    <div id="visitorCount">الزيارات: 0</div>
+      <div class="cf-section cf-highlight">
+        <div class="cf-wrapper">
+          <div class="cf-screenshot-container cf-screenshot-full">
+            
+              <span class="cf-no-screenshot error"></span>
+            
+          </div>
+        </div>
+      </div><!-- /.captcha-container -->
 
-    <h2>قم بوضع رابط موقع :</h2>
-    <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
-    <div class="buttons">
-      <button class="scan-btn" onclick="fetchSource()">فحص</button>
-      <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
-    </div>
+      <div class="cf-section cf-wrapper">
+        <div class="cf-columns two">
+          <div class="cf-column">
+            <h2 data-translate="blocked_why_headline">Why have I been blocked?</h2>
 
-    <div id="codeContainer"></div>
-  </div>
+            <p data-translate="blocked_why_detail">This website is using a security service to protect itself from online attacks. The action you just performed triggered the security solution. There are several actions that could trigger this block including submitting a certain word or phrase, a SQL command or malformed data.</p>
+          </div>
 
-<script>
-  const blockedSites = [
-    "https://htmlsniffer.netlify.app",
-    "https://htmlsniffer.netlify.app/",
-    "https://515group.netlify.app",
-    "https://515group.netlify.app/"
-  ];
+          <div class="cf-column">
+            <h2 data-translate="blocked_resolve_headline">What can I do to resolve this?</h2>
 
-  function isBlockedSite(url) {
-    return blockedSites.some(site => url.toLowerCase() === site.toLowerCase());
-  }
+            <p data-translate="blocked_resolve_detail">You can email the site owner to let them know you were blocked. Please include what you were doing when this page came up and the Cloudflare Ray ID found at the bottom of this page.</p>
+          </div>
+        </div>
+      </div><!-- /.section -->
 
-  function fetchSource() {
-    const url = document.getElementById('urlInput').value.trim();
-    if (isBlockedSite(url)) {
-      alert('هذا الموقع محظور.');
-      window.location.href = 'https://google.com';
-      return;
-    }
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');
-      return;
-    }
-    const container = document.getElementById('codeContainer');
-    container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
+      <div class="cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300">
+  <p class="text-13">
+    <span class="cf-footer-item sm:block sm:mb-1">Cloudflare Ray ID: <strong class="font-semibold">95358bb45b88b136</strong></span>
+    <span class="cf-footer-separator sm:hidden">&bull;</span>
+    <span id="cf-footer-item-ip" class="cf-footer-item hidden sm:block sm:mb-1">
+      Your IP:
+      <button type="button" id="cf-footer-ip-reveal" class="cf-footer-ip-reveal-btn">Click to reveal</button>
+      <span class="hidden" id="cf-footer-ip">45.61.185.154</span>
+      <span class="cf-footer-separator sm:hidden">&bull;</span>
+    </span>
+    <span class="cf-footer-item sm:block sm:mb-1"><span>Performance &amp; security by</span> <a rel="noopener noreferrer" href="https://www.cloudflare.com/5xx-error-landing" id="brand_link" target="_blank">Cloudflare</a></span>
+    
+  </p>
+  <script>(function(){function d(){var b=a.getElementById("cf-footer-item-ip"),c=a.getElementById("cf-footer-ip-reveal");b&&"classList"in b&&(b.classList.remove("hidden"),c.addEventListener("click",function(){c.classList.add("hidden");a.getElementById("cf-footer-ip").classList.remove("hidden")}))}var a=document;document.addEventListener&&a.addEventListener("DOMContentLoaded",d)})();</script>
+</div><!-- /.error-footer -->
 
-    fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
-      .then(response => {
-        if (!response.ok) throw new Error('لم يتمكن من جلب الكود.');
-        return response.text();
-      })
-      .then(data => {
-        container.innerHTML = `
-          <h3>عرض الكود</h3>
-          <pre id="result">${escapeHtml(data)}</pre>
-        `;
-      })
-      .catch(error => {
-        container.innerHTML = `<h3>خطأ: ${escapeHtml(error.message)}</h3>`;
-      });
-  }
 
-  function copyCode() {
-    const codeElem = document.getElementById('result');
-    if (!codeElem) {
-      alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
-      return;
-    }
-    const code = codeElem.textContent;
-    const url = document.getElementById('urlInput').value;
-    if (isBlockedSite(url)) {
-      window.location.href = 'https://google.com';
-      return;
-    }
-    navigator.clipboard.writeText(code)
-      .then(() => alert('تم نسخ الكود بنجاح!'))
-      .catch(() => alert('حدث خطأ أثناء النسخ.'));
-  }
+    </div><!-- /#cf-error-details -->
+  </div><!-- /#cf-wrapper -->
 
-  function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;")
-               .replace(/</g, "&lt;")
-               .replace(/>/g, "&gt;")
-               .replace(/"/g, "&quot;")
-               .replace(/'/g, "&#039;");
-  }
-
-  // عداد الزيارات (تخزين محلي)
-  function updateVisitorCount() {
-    let count = localStorage.getItem('visitorCount');
-    if (!count) {
-      count = 1;
-      localStorage.setItem('visitorCount', count);
-    } else {
-      count = parseInt(count) + 1;
-      localStorage.setItem('visitorCount', count);
-    }
-    document.getElementById('visitorCount').textContent = 'الزيارات: ' + count;
-  }
-
-  updateVisitorCount();
-
-  document.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    window.location.href = 'https://google.com';
-  });
-
-  document.addEventListener('keydown', e => {
-    if (
-      (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 's' || e.key === 'a' || e.key === 'p')) ||
-      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-      e.key === 'F12' || 
-      e.key === 'ContextMenu' || 
-      e.key === 'Apps'
-    ) {
-      e.preventDefault();
-      window.location.href = 'https://google.com';
-      return false;
-    }
-  });
+  <script>
+  window._cf_translation = {};
+  
+  
 </script>
-</body>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95358bb45b88b136',t:'MTc1MDUzMDI5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
