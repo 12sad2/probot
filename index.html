@@ -1,192 +1,132 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nasser 497©</title>
+  <meta charset="UTF-8">
+  <title>فاحص كود المواقع</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 🛡️ حمايات داخل الصفحة -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+
   <style>
     body {
-      background: linear-gradient(135deg, #1a0000, #000000);
-      color: #eee;
       font-family: Arial, sans-serif;
       direction: rtl;
-      padding: 0; margin: 0;
+      padding: 30px;
+      background-color: #f5f5f5;
     }
-    header, footer {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      padding: 20px;
-      color: #ff4444;
+    h2 {
+      color: #4b0082;
     }
-    main {
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-    }
-    textarea, input {
-      width: 100%;
+    input[type="text"] {
+      width: 65%;
       padding: 10px;
-      margin-top: 10px;
-      background-color: #222;
-      color: #eee;
-      border: none;
-      border-radius: 5px;
       font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
     button {
-      padding: 12px;
-      margin-top: 10px;
-      width: 100%;
+      padding: 10px 20px;
+      font-size: 16px;
       border: none;
-      border-radius: 5px;
-      font-size: 18px;
+      border-radius: 8px;
       cursor: pointer;
-    }
-    .btn-green {
-      background-color: #28a745;
       color: white;
+      margin-right: 10px;
     }
-    .btn-red {
-      background-color: #dc3545;
-      color: white;
+    .scan-btn {
+      background-color: green;
     }
-    #status {
-      text-align: center;
-      margin-top: 10px;
-      min-height: 20px;
-      white-space: nowrap;
-      overflow-x: auto;
+    .copy-btn {
+      background-color: #007bff;
+    }
+    pre {
+      background-color: #4b0082; /* بنفسجي */
+      color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      max-height: 400px;
+      overflow: auto;
+      white-space: pre-wrap;
+      margin-top: 20px;
+    }
+
+    /* منع التحديد والنسخ */
+    body {
+      user-select: none;
     }
   </style>
-</head>
-<body>
-
-  <header>Nasser 497©</header>
-
-  <main>
-    <label>اكتب التوكنات (توكن في كل سطر):</label>
-    <textarea id="tokenInput" rows="6" placeholder="توكن واحد أو أكثر..."></textarea>
-
-    <label>اكتب الايديات (مفصولة بفاصلة):</label>
-    <input type="text" id="idsInput" placeholder="مثلاً: 1381381865793130638,123456789" />
-
-    <label>قم بوضع الكلام:</label>
-    <textarea id="messageInput" rows="3" placeholder="النص الذي تريد إرساله"></textarea>
-
-    <button id="startBtn" class="btn-green">بدء الإرسال</button>
-    <button id="stopBtn" class="btn-red" disabled>إيقاف الإرسال</button>
-
-    <div id="status"></div>
-  </main>
-
-  <footer>Nasser 497©</footer>
 
   <script>
-    const tokenInput = document.getElementById('tokenInput');
-    const idsInput = document.getElementById('idsInput');
-    const messageInput = document.getElementById('messageInput');
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const status = document.getElementById('status');
+    // 🚫 منع كليك يمين
+    document.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      window.location.href = 'https://google.com';
+    });
 
-    let sending = false;
-    let msgIndex = 0;
-    let tokenIndex = 0;
-    let validTokens = [];
-    const delay = 66; // 15 رسالة في الثانية (تقريبًا)
+    // 🚫 منع F12 وأدوات المطور
+    document.onkeydown = function (e) {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        (e.ctrlKey && e.key === "U")
+      ) {
+        window.location.href = 'https://google.com';
+        return false;
+      }
+    };
 
-    function validateToken(token) {
-      return fetch('https://discord.com/api/v9/users/@me', {
-        headers: { Authorization: token }
-      }).then(res => res.ok).catch(() => false);
+    // 🕵️‍♂️ فحص أدوات المطور
+    setInterval(() => {
+      const start = performance.now();
+      debugger;
+      const end = performance.now();
+      if (end - start > 100) {
+        window.location.href = 'https://google.com';
+      }
+    }, 1000);
+
+    // 🔍 فحص رابط الموقع
+    function fetchSource() {
+      const url = document.getElementById('urlInput').value;
+
+      if (!url.startsWith('http')) {
+        alert('الرجاء إدخال رابط يبدأ بـ https:// أو http://');
+        return;
+      }
+
+      fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
+        .then(response => {
+          if (!response.ok) throw new Error('لم يتمكن من جلب البيانات.');
+          return response.text();
+        })
+        .then(data => {
+          document.getElementById('result').textContent = data;
+        })
+        .catch(error => {
+          document.getElementById('result').textContent = 'خطأ: ' + error.message;
+        });
     }
 
-    function sendMessage(token, channelId, message) {
-      return fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
-        method: 'POST',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ content: message })
+    // 📋 نسخ الكود
+    function copyCode() {
+      const code = document.getElementById('result').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        alert('تم نسخ الكود إلى الحافظة!');
+      }).catch(() => {
+        alert('حدث خطأ أثناء النسخ.');
       });
     }
-
-    async function fastSend() {
-      if (!sending) return;
-
-      const currentToken = validTokens[tokenIndex % validTokens.length];
-      const currentChannel = ids[msgIndex % ids.length];
-      const msg = messageInput.value.trim();
-
-      try {
-        const res = await sendMessage(currentToken, currentChannel, msg);
-        status.textContent = res.ok
-          ? `✅ أُرسل إلى ${currentChannel} (توكن #${tokenIndex + 1})`
-          : `❌ فشل في الإرسال إلى ${currentChannel} (توكن #${tokenIndex + 1})`;
-      } catch (e) {
-        status.textContent = `❌ خطأ في الإرسال`;
-      }
-
-      msgIndex++;
-      tokenIndex++;
-
-      setTimeout(fastSend, delay);
-    }
-
-    startBtn.addEventListener('click', async () => {
-      const tokens = tokenInput.value.trim().split('\n').map(t => t.trim()).filter(Boolean);
-      ids = idsInput.value.trim().split(',').map(i => i.trim()).filter(Boolean);
-      const message = messageInput.value.trim();
-
-      if (tokens.length === 0 || ids.length === 0 || !message) {
-        status.textContent = 'يرجى ملء جميع الحقول.';
-        return;
-      }
-
-      status.textContent = 'جار التحقق من التوكنات...';
-
-      validTokens = [];
-      for (const token of tokens) {
-        const valid = await validateToken(token);
-        if (valid) validTokens.push(token);
-      }
-
-      if (validTokens.length === 0) {
-        status.textContent = '❌ لا يوجد أي توكن صالح.';
-        return;
-      }
-
-      msgIndex = 0;
-      tokenIndex = 0;
-      sending = true;
-
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-
-      status.textContent = `✅ بدأ الإرسال مع ${validTokens.length} توكنات و ${ids.length} هدف.`;
-      fastSend();
-    });
-
-    stopBtn.addEventListener('click', () => {
-      sending = false;
-      status.textContent = '⏹️ تم إيقاف الإرسال.';
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
-    });
-
-    // منع فتح أدوات المطور و قائمة السياق
-    document.addEventListener('keydown', function (e) {
-      if (e.key === "F12") {
-        window.open('', '_self').close();
-      }
-    });
-
-    document.addEventListener('contextmenu', function (e) {
-      e.preventDefault();
-      window.open('', '_self').close();
-    });
   </script>
+</head>
+
+<body>
+  <h2>قم بوضع رابط موقع :</h2>
+  <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
+  <button class="scan-btn" onclick="fetchSource()">فحص</button>
+  <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
+
+  <pre id="result">كود الموقع سيظهر هنا...</pre>
 </body>
 </html>
