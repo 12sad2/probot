@@ -1,222 +1,142 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>فاحص كود الموقع</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>موقع بلاغات</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     body {
-      font-family: Tahoma, sans-serif;
-      background-color: #f0f0f0;
-      padding: 40px;
-      direction: rtl;
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
       text-align: center;
-      user-select: none;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
     }
-    #app {
-      padding: 40px;
-      overflow-y: auto;
-      height: 100vh;
-      box-sizing: border-box;
-    }
-    .header {
-      display: flex;
-      justify-content: center;
-      align-items: baseline;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      flex-direction: column;
-    }
-    h2 {
-      color: #333;
-      margin: 0;
-      font-size: 28px;
-    }
-    .subtitle {
-      color: #666;
-      font-size: 14px;
-      font-weight: normal;
-      margin-top: 6px;
-    }
-    #visitorCount {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #4b0082;
-    }
-    input[type="text"] {
-      width: 60%;
+
+    input[type="url"], button {
+      width: 100%;
       padding: 10px;
       font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .buttons {
       margin-top: 10px;
+      margin-bottom: 10px;
     }
+
     button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
+      background-color: red;
       color: white;
+      border: none;
       cursor: pointer;
-      margin: 0 5px;
     }
-    .scan-btn {
-      background-color: green;
-    }
-    .copy-btn {
-      background-color: #007bff;
-    }
-    #codeContainer {
+
+    .report-list {
       margin-top: 30px;
       text-align: right;
-      max-width: 90%;
-      margin-left: auto;
-      margin-right: auto;
     }
-    #codeContainer h3 {
-      color: #4b0082;
+
+    .report-item {
+      background-color: #fff;
+      padding: 10px;
       margin-bottom: 10px;
-      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
-    pre {
-      background-color: #4b0082;
-      color: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      max-height: 400px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      text-align: left;
-      font-size: 14px;
-      line-height: 1.4;
+
+    #user-info {
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
     }
   </style>
 </head>
 <body>
-  <div id="app">
-    <div class="header">
-      <h2>فاحص كود الموقع</h2>
-      <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
-    </div>
 
-    <div id="visitorCount">الزيارات: 0</div>
+  <h1>🚨 موقع بلاغات</h1>
 
-    <h2>قم بوضع رابط موقع :</h2>
-    <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
-    <div class="buttons">
-      <button class="scan-btn" onclick="fetchSource()">فحص</button>
-      <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
-    </div>
-
-    <div id="codeContainer"></div>
+  <div id="g_id_onload"
+    data-client_id="76575"
+    data-callback="handleCredentialResponse"
+    data-auto_prompt="false">
   </div>
 
-<script>
-  const blockedSites = [
-    "https://htmlsniffer.netlify.app",
-    "https://htmlsniffer.netlify.app/",
-    "https://515group.netlify.app",
-    "https://515group.netlify.app/"
-  ];
+  <div class="g_id_signin"
+    data-type="standard"
+    data-size="large"
+    data-theme="outline"
+    data-text="signin_with"
+    data-shape="rectangular"
+    data-logo_alignment="right">
+  </div>
 
-  function isBlockedSite(url) {
-    return blockedSites.some(site => url.toLowerCase() === site.toLowerCase());
-  }
+  <div id="user-info"></div>
 
-  function fetchSource() {
-    const url = document.getElementById('urlInput').value.trim();
-    if (isBlockedSite(url)) {
-      alert('هذا الموقع محظور.');
-      window.location.href = 'https://google.com';
-      return;
+  <div id="report-section" style="display:none;">
+    <p>قم بوضع رابط الموقع :</p>
+    <input type="url" id="siteUrl" placeholder="https://example.com" required>
+    <button onclick="submitReport()">بلاغ</button>
+
+    <div class="report-list" id="reportList">
+      <h3>البلاغات المُرسلة:</h3>
+    </div>
+  </div>
+
+  <script>
+    let userEmail = '';
+    const reports = [];
+
+    function handleCredentialResponse(response) {
+      const data = parseJwt(response.credential);
+      userEmail = data.email;
+      document.getElementById('user-info').innerText = `تم تسجيل الدخول: ${userEmail}`;
+      document.getElementById('report-section').style.display = 'block';
+      document.querySelector('.g_id_signin').style.display = 'none';
     }
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');
-      return;
-    }
-    const container = document.getElementById('codeContainer');
-    container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
 
-    fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
-      .then(response => {
-        if (!response.ok) throw new Error('لم يتمكن من جلب الكود.');
-        return response.text();
-      })
-      .then(data => {
-        container.innerHTML = `
-          <h3>عرض الكود</h3>
-          <pre id="result">${escapeHtml(data)}</pre>
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      return JSON.parse(jsonPayload);
+    }
+
+    function submitReport() {
+      const urlInput = document.getElementById('siteUrl');
+      const url = urlInput.value.trim();
+
+      if (url === '') {
+        alert('يرجى إدخال رابط صحيح.');
+        return;
+      }
+
+      const report = {
+        url,
+        user: userEmail,
+        status: 'لم يُتابع بعد'
+      };
+
+      reports.push(report);
+      renderReports();
+      urlInput.value = '';
+    }
+
+    function renderReports() {
+      const list = document.getElementById('reportList');
+      list.innerHTML = '<h3>البلاغات المُرسلة:</h3>';
+
+      reports.forEach((report, index) => {
+        const div = document.createElement('div');
+        div.className = 'report-item';
+        div.innerHTML = `
+          <p><strong>الموقع:</strong> <a href="${report.url}" target="_blank">${report.url}</a></p>
+          <p><strong>البريد المُبلّغ:</strong> ${report.user}</p>
+          <p><strong>الحالة:</strong> ${report.status}</p>
         `;
-      })
-      .catch(error => {
-        container.innerHTML = `<h3>خطأ: ${escapeHtml(error.message)}</h3>`;
+        list.appendChild(div);
       });
-  }
-
-  function copyCode() {
-    const codeElem = document.getElementById('result');
-    if (!codeElem) {
-      alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
-      return;
     }
-    const code = codeElem.textContent;
-    const url = document.getElementById('urlInput').value;
-    if (isBlockedSite(url)) {
-      window.location.href = 'https://google.com';
-      return;
-    }
-    navigator.clipboard.writeText(code)
-      .then(() => alert('تم نسخ الكود بنجاح!'))
-      .catch(() => alert('حدث خطأ أثناء النسخ.'));
-  }
+  </script>
 
-  function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;")
-               .replace(/</g, "&lt;")
-               .replace(/>/g, "&gt;")
-               .replace(/"/g, "&quot;")
-               .replace(/'/g, "&#039;");
-  }
-
-  // عداد الزيارات (تخزين محلي)
-  function updateVisitorCount() {
-    let count = localStorage.getItem('visitorCount');
-    if (!count) {
-      count = 1;
-      localStorage.setItem('visitorCount', count);
-    } else {
-      count = parseInt(count) + 1;
-      localStorage.setItem('visitorCount', count);
-    }
-    document.getElementById('visitorCount').textContent = 'الزيارات: ' + count;
-  }
-
-  updateVisitorCount();
-
-  document.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    window.location.href = 'https://google.com';
-  });
-
-  document.addEventListener('keydown', e => {
-    if (
-      (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 's' || e.key === 'a' || e.key === 'p')) ||
-      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-      e.key === 'F12' || 
-      e.key === 'ContextMenu' || 
-      e.key === 'Apps'
-    ) {
-      e.preventDefault();
-      window.location.href = 'https://google.com';
-      return false;
-    }
-  });
-</script>
 </body>
 </html>
