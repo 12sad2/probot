@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>كشف معلومات المواقع ✅</title>
+  <title>فاحص كود الموقع</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -79,14 +79,52 @@
   </style>
 
   <script>
+    function openFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+    }
+
+    function closeFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+
+    function isFullscreen() {
+      return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+    }
+
     function fetchSource() {
       const url = document.getElementById('urlInput').value.trim();
+
+      if (url === "https://htmlsniffer.netlify.app" || url === "https://htmlsniffer.netlify.app/") {
+        window.location.href = 'https://google.com';
+        return;
+      }
+
       if (!url.startsWith('http')) {
         alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');
         return;
       }
 
-      // تنظيف واجهة عرض الكود أثناء التحميل
+      if (!isFullscreen()) {
+        openFullscreen();
+      }
+
       const container = document.getElementById('codeContainer');
       container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
 
@@ -115,7 +153,6 @@
 
       const code = codeElem.textContent;
 
-     
       const url = document.getElementById('urlInput').value;
       if (url.includes("htmlsniffer.netlify.app")) {
         window.location.href = 'https://google.com';
@@ -128,7 +165,6 @@
         .catch(() => alert('حدث خطأ أثناء النسخ.'));
     }
 
-    
     function escapeHtml(text) {
       return text
         .replace(/&/g, "&amp;")
@@ -138,14 +174,22 @@
         .replace(/'/g, "&#039;");
     }
 
-    
     document.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       window.location.href = 'https://google.com';
     });
 
-    // حماية مفاتيح أدوات المطور
     document.onkeydown = function (e) {
+      if (e.key === "F11") {
+        e.preventDefault();
+        if (isFullscreen()) {
+          closeFullscreen();
+        } else {
+          openFullscreen();
+        }
+        return false;
+      }
+
       if (
         e.key === "F12" ||
         (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
@@ -156,7 +200,6 @@
       }
     };
 
-    
     setInterval(() => {
       const t0 = performance.now();
       debugger;
@@ -177,7 +220,6 @@
   </div>
 
   <div id="codeContainer">
-    <!-- كود الموقع سيظهر هنا تحت الزر -->
   </div>
 </body>
 </html>
