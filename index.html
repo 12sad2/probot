@@ -15,9 +15,26 @@
       user-select: none;
     }
 
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
     h2 {
       color: #333;
-      margin-bottom: 20px;
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      font-weight: normal;
+      margin-top: 6px;
     }
 
     input[type="text"] {
@@ -180,7 +197,7 @@
     });
 
     document.onkeydown = function (e) {
-      if (e.key === "F11") {
+      if (e.key === "F11" || e.key.toLowerCase() === "r") {
         e.preventDefault();
         if (isFullscreen()) {
           closeFullscreen();
@@ -208,10 +225,16 @@
         window.location.href = 'https://google.com';
       }
     }, 1000);
+
   </script>
 </head>
 
 <body>
+  <div class="header">
+    <h2>فاحص كود الموقع</h2>
+    <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
+  </div>
+
   <h2>قم بوضع رابط موقع :</h2>
   <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
   <div class="buttons">
