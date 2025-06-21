@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>موقع بلاغات</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -42,10 +41,9 @@
       border-radius: 5px;
     }
 
-    #user-info {
-      margin-top: 10px;
-      font-weight: bold;
+    .status {
       color: green;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -53,53 +51,16 @@
 
   <h1>🚨 موقع بلاغات</h1>
 
-  <div id="g_id_onload"
-    data-client_id="76575"
-    data-callback="handleCredentialResponse"
-    data-auto_prompt="false">
-  </div>
+  <p>قم بوضع رابط الموقع :</p>
+  <input type="url" id="siteUrl" placeholder="https://example.com" required>
+  <button onclick="submitReport()">بلاغ</button>
 
-  <div class="g_id_signin"
-    data-type="standard"
-    data-size="large"
-    data-theme="outline"
-    data-text="signin_with"
-    data-shape="rectangular"
-    data-logo_alignment="right">
-  </div>
-
-  <div id="user-info"></div>
-
-  <div id="report-section" style="display:none;">
-    <p>قم بوضع رابط الموقع :</p>
-    <input type="url" id="siteUrl" placeholder="https://example.com" required>
-    <button onclick="submitReport()">بلاغ</button>
-
-    <div class="report-list" id="reportList">
-      <h3>البلاغات المُرسلة:</h3>
-    </div>
+  <div class="report-list" id="reportList">
+    <h3>البلاغات المُرسلة:</h3>
   </div>
 
   <script>
-    let userEmail = '';
     const reports = [];
-
-    function handleCredentialResponse(response) {
-      const data = parseJwt(response.credential);
-      userEmail = data.email;
-      document.getElementById('user-info').innerText = `تم تسجيل الدخول: ${userEmail}`;
-      document.getElementById('report-section').style.display = 'block';
-      document.querySelector('.g_id_signin').style.display = 'none';
-    }
-
-    function parseJwt(token) {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-      ).join(''));
-      return JSON.parse(jsonPayload);
-    }
 
     function submitReport() {
       const urlInput = document.getElementById('siteUrl');
@@ -111,8 +72,7 @@
       }
 
       const report = {
-        url,
-        user: userEmail,
+        url: url,
         status: 'لم يُتابع بعد'
       };
 
@@ -125,13 +85,12 @@
       const list = document.getElementById('reportList');
       list.innerHTML = '<h3>البلاغات المُرسلة:</h3>';
 
-      reports.forEach((report, index) => {
+      reports.forEach(report => {
         const div = document.createElement('div');
         div.className = 'report-item';
         div.innerHTML = `
           <p><strong>الموقع:</strong> <a href="${report.url}" target="_blank">${report.url}</a></p>
-          <p><strong>البريد المُبلّغ:</strong> ${report.user}</p>
-          <p><strong>الحالة:</strong> ${report.status}</p>
+          <p><strong>الحالة:</strong> <span class="status">${report.status}</span></p>
         `;
         list.appendChild(div);
       });
