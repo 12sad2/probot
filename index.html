@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>فاحص كود الموقع</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
     body {
       font-family: Tahoma, sans-serif;
@@ -17,29 +16,12 @@
       height: 100vh;
       overflow: hidden;
     }
-
-    #startScreen {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #4b0082;
-      color: white;
-      font-size: 28px;
-      cursor: pointer;
-      user-select: none;
-      flex-direction: column;
-      gap: 15px;
-    }
-
     #app {
-      display: none;
       padding: 40px;
       overflow-y: auto;
       height: 100vh;
       box-sizing: border-box;
     }
-
     .header {
       display: flex;
       justify-content: center;
@@ -48,20 +30,17 @@
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
-
     h2 {
       color: #333;
       margin: 0;
       font-size: 28px;
     }
-
     .subtitle {
       color: #666;
       font-size: 14px;
       font-weight: normal;
       margin-top: 6px;
     }
-
     input[type="text"] {
       width: 60%;
       padding: 10px;
@@ -69,11 +48,9 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-
     .buttons {
       margin-top: 10px;
     }
-
     button {
       padding: 10px 20px;
       font-size: 16px;
@@ -83,15 +60,12 @@
       cursor: pointer;
       margin: 0 5px;
     }
-
     .scan-btn {
       background-color: green;
     }
-
     .copy-btn {
       background-color: #007bff;
     }
-
     #codeContainer {
       margin-top: 30px;
       text-align: right;
@@ -99,13 +73,11 @@
       margin-left: auto;
       margin-right: auto;
     }
-
     #codeContainer h3 {
       color: #4b0082;
       margin-bottom: 10px;
       text-align: center;
     }
-
     pre {
       background-color: #4b0082;
       color: #fff;
@@ -119,153 +91,8 @@
       line-height: 1.4;
     }
   </style>
-
-  <script>
-    function openFullscreen() {
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-      }
-    }
-
-    function closeFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
-      }
-    }
-
-    function isFullscreen() {
-      return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
-    }
-
-    function fetchSource() {
-      const url = document.getElementById('urlInput').value.trim();
-
-      if (url === "https://htmlsniffer.netlify.app" || url === "https://htmlsniffer.netlify.app/") {
-        window.location.href = 'https://google.com';
-        return;
-      }
-
-      if (!url.startsWith('http')) {
-        alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');
-        return;
-      }
-
-      const container = document.getElementById('codeContainer');
-      container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
-
-      fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
-        .then((response) => {
-          if (!response.ok) throw new Error('لم يتمكن من جلب الكود.');
-          return response.text();
-        })
-        .then((data) => {
-          container.innerHTML = `
-            <h3>عرض الكود</h3>
-            <pre id="result">${escapeHtml(data)}</pre>
-          `;
-        })
-        .catch((error) => {
-          container.innerHTML = `<h3>خطأ: ${escapeHtml(error.message)}</h3>`;
-        });
-    }
-
-    function copyCode() {
-      const codeElem = document.getElementById('result');
-      if (!codeElem) {
-        alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
-        return;
-      }
-
-      const code = codeElem.textContent;
-
-      const url = document.getElementById('urlInput').value;
-      if (url.includes("htmlsniffer.netlify.app")) {
-        window.location.href = 'https://google.com';
-        return;
-      }
-
-      navigator.clipboard
-        .writeText(code)
-        .then(() => alert('تم نسخ الكود بنجاح!'))
-        .catch(() => alert('حدث خطأ أثناء النسخ.'));
-    }
-
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    document.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      window.location.href = 'https://google.com';
-    });
-
-    document.onkeydown = function (e) {
-      if (e.key === "F11") {
-        e.preventDefault();
-        window.location.href = 'https://google.com'; // خروج من الموقع عند F11
-        return false;
-      }
-      if (e.key.toLowerCase() === "r") {
-        e.preventDefault();
-        if (isFullscreen()) {
-          closeFullscreen();
-        } else {
-          openFullscreen();
-        }
-        return false;
-      }
-
-      if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-        (e.ctrlKey && e.key === "U")
-      ) {
-        window.location.href = 'https://google.com';
-        return false;
-      }
-    };
-
-    setInterval(() => {
-      const t0 = performance.now();
-      debugger;
-      const t1 = performance.now();
-      if (t1 - t0 > 100) {
-        window.location.href = 'https://google.com';
-      }
-    }, 1000);
-
-    function startApp() {
-      openFullscreen();
-      document.getElementById('startScreen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-    }
-  </script>
 </head>
-
 <body>
-  <div id="startScreen" onclick="startApp()" title="اضغط لبدء الفحص">
-    اضغط هنا لبدء الفحص<br>
-    
-  </div>
-
   <div id="app">
     <div class="header">
       <h2>فاحص كود الموقع</h2>
@@ -281,5 +108,93 @@
 
     <div id="codeContainer"></div>
   </div>
+
+<script>
+  const blockedSites = [
+    "https://htmlsniffer.netlify.app",
+    "https://htmlsniffer.netlify.app/",
+    "https://515group.netlify.app",
+    "https://515group.netlify.app/"
+  ];
+
+  function isBlockedSite(url) {
+    return blockedSites.some(site => url.toLowerCase() === site.toLowerCase());
+  }
+
+  function fetchSource() {
+    const url = document.getElementById('urlInput').value.trim();
+    if (isBlockedSite(url)) {
+      alert('هذا الموقع محظور.');
+      window.location.href = 'https://google.com';
+      return;
+    }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');
+      return;
+    }
+    const container = document.getElementById('codeContainer');
+    container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
+
+    fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
+      .then(response => {
+        if (!response.ok) throw new Error('لم يتمكن من جلب الكود.');
+        return response.text();
+      })
+      .then(data => {
+        container.innerHTML = `
+          <h3>عرض الكود</h3>
+          <pre id="result">${escapeHtml(data)}</pre>
+        `;
+      })
+      .catch(error => {
+        container.innerHTML = `<h3>خطأ: ${escapeHtml(error.message)}</h3>`;
+      });
+  }
+
+  function copyCode() {
+    const codeElem = document.getElementById('result');
+    if (!codeElem) {
+      alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
+      return;
+    }
+    const code = codeElem.textContent;
+    const url = document.getElementById('urlInput').value;
+    if (isBlockedSite(url)) {
+      window.location.href = 'https://google.com';
+      return;
+    }
+    navigator.clipboard.writeText(code)
+      .then(() => alert('تم نسخ الكود بنجاح!'))
+      .catch(() => alert('حدث خطأ أثناء النسخ.'));
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;")
+               .replace(/</g, "&lt;")
+               .replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;")
+               .replace(/'/g, "&#039;");
+  }
+
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    window.location.href = 'https://google.com';
+  });
+
+  document.addEventListener('keydown', e => {
+   
+    if (
+      (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 's' || e.key === 'a' || e.key === 'p')) ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+      e.key === 'F12' || 
+      e.key === 'ContextMenu' || 
+      e.key === 'Apps'
+    ) {
+      e.preventDefault();
+      window.location.href = 'https://google.com';
+      return false;
+    }
+  });
+</script>
 </body>
 </html>
