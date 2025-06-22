@@ -1,21 +1,230 @@
-<!DOCTYPE html><html lang="ar"><head><meta charset="UTF-8"/><title>فاحص كود الموقع</title><meta name="viewport" content="width=device-width, initial-scale=1"/><style>body{font-family:Tahoma,sans-serif;background-color:#f0f0f0;padding:40px;direction:rtl;text-align:center;user-select:none;margin:0}.header{margin-bottom:20px}
-h2{color:#333;margin:0;font-size:28px}.subtitle{color:#666;font-size:14px;margin-top:6px}
-#visitorCount{font-size:18px;margin-bottom:20px;color:#4b0082}
-input[type="text"]{width:60%;padding:10px;font-size:16px;border-radius:6px;border:1px solid #ccc}.buttons{margin-top:10px}
-button{padding:10px 20px;font-size:16px;border-radius:6px;border:none;color:white;cursor:pointer;margin:5px}.scan-btn{background-color:green}.copy-btn{background-color:#007bff}.download-btn{background-color:#003366}
-#codeContainer{margin-top:30px;text-align:right;max-width:90%;margin-left:auto;margin-right:auto}
-#codeContainer h3{color:#4b0082;margin-bottom:10px;text-align:center}
-pre{background-color:#4b0082;color:#fff;padding:15px;border-radius:8px;max-height:400px;overflow-y:auto;white-space:pre-wrap;text-align:left;font-size:14px;line-height:1.4}</style></head><body><div class="header"><h2>فاحص كود الموقع</h2></div><div id="visitorCount">الزيارات:0</div><h2>قم بوضع رابط موقع:</h2><input type="text" id="urlInput" placeholder="مثال: https://example.com"/><div class="buttons"><button class="scan-btn" onclick="fetchSource()">فحص</button><button class="copy-btn" onclick="copyCode()">نسخ الكود</button><button class="download-btn" onclick="downloadCode()">تنزيل الكود</button></div><div id="codeContainer"></div><script>document.addEventListener("DOMContentLoaded",()=>{updateVisitorCount();if(window.top!==window.self){alert("🚫 لا يمكن تشغيل الموقع من داخل إطار خارجي (iframe)!");window.top.location="about:blank"}});function fetchSource(){const url=document.getElementById('urlInput').value.trim();const forbidden=['https://htmlsniffer.netlify.app','https://htmlsniffer.netlify.app/','https://515group.netlify.app','https://515group.netlify.app/'];if(forbidden.includes(url)){document.getElementById('codeContainer').innerHTML=`<h3 style="color:red;">❌ لا يمكنك نسخ كود هذا الموقع</h3>`;return}
-if(!url.startsWith('http://')&&!url.startsWith('https://')){alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');return}
-const container=document.getElementById('codeContainer');container.innerHTML='<h3>جاري جلب الكود ...</h3>';fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url)).then(response=>{if(!response.ok)throw new Error('لم يتمكن من جلب الكود.');return response.text()}).then(data=>{container.innerHTML=`
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>هتلر عمك لجلب الاكواد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background-color: #f0f0f0;
+      padding: 40px;
+      direction: rtl;
+      text-align: center;
+      user-select: none;
+      margin: 0;
+    }
+    .header {
+      margin-bottom: 20px;
+    }
+    h2 {
+      color: #333;
+      margin: 0;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+    #visitorCount {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #4b0082;
+    }
+    input[type="text"] {
+      width: 60%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .buttons {
+      margin-top: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .scan-btn {
+      background-color: green;
+    }
+    .copy-btn {
+      background-color: #007bff;
+    }
+    .download-btn {
+      background-color: #003366;
+    }
+    #codeContainer {
+      margin-top: 30px;
+      text-align: right;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #codeContainer h3 {
+      color: #4b0082;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    pre {
+      background-color: #4b0082;
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>فاحص كود الموقع</h2>
+  </div>
+
+  <div id="visitorCount">الزيارات: 0</div>
+
+  <h2>قم بوضع رابط موقع :</h2>
+  <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
+  <div class="buttons">
+    <button class="scan-btn" onclick="fetchSource()">فحص</button>
+    <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
+    <button class="download-btn" onclick="downloadCode()">تنزيل الكود</button>
+  </div>
+
+  <div id="codeContainer"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    updateVisitorCount();
+
+    if (window.top !== window.self) {
+      alert("🚫 لا يمكن تشغيل الموقع من داخل إطار خارجي (iframe)!");
+      window.top.location = "about:blank";
+    }
+  });
+
+  function fetchSource() {
+    const url = document.getElementById('urlInput').value.trim();
+    const forbidden = [
+      'https://htmlsniffer.netlify.app',
+      'https://htmlsniffer.netlify.app/',
+      'https://515group.netlify.app',
+      'https://515group.netlify.app/'
+    ];
+
+    if (forbidden.includes(url)) {
+      document.getElementById('codeContainer').innerHTML = `<h3 style="color:red;">❌ لا يمكنك نسخ كود هذا الموقع</h3>`;
+      return;
+    }
+
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      alert('يرجى إدخال رابط يبدأ بـ http:// أو https://');
+      return;
+    }
+
+    const container = document.getElementById('codeContainer');
+    container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
+
+    fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
+      .then(response => {
+        if (!response.ok) throw new Error('لم يتمكن من جلب الكود.');
+        return response.text();
+      })
+      .then(data => {
+        container.innerHTML = `
           <h3>عرض الكود</h3>
           <pre id="result">${escapeHtml(data)}</pre>
-        `}).catch(error=>{container.innerHTML=`<h3>خطأ: ${escapeHtml(error.message)}</h3>`})}
-function copyCode(){const codeElem=document.getElementById('result');if(!codeElem){alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');return}
-navigator.clipboard.writeText(codeElem.textContent).then(()=>alert('تم نسخ الكود بنجاح!')).catch(()=>alert('حدث خطأ أثناء النسخ.'))}
-function downloadCode(){const codeElem=document.getElementById('result');if(!codeElem){alert('لا يوجد كود للتنزيل. الرجاء الضغط على فحص أولاً.');return}
-const code=codeElem.textContent;const url=document.getElementById('urlInput').value.trim();let siteName='website';try{const parsedURL=new URL(url);siteName=parsedURL.hostname.replace(/^www\./,'')}catch{alert('الرابط غير صالح.');return}
-const blob=new Blob([code],{type:'text/html'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`${siteName}.html`;document.body.appendChild(link);link.click();document.body.removeChild(link)}
-function escapeHtml(text){return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
-function updateVisitorCount(){let count=localStorage.getItem('visitorCount');if(!count)count=1;else count=parseInt(count)+1;localStorage.setItem('visitorCount',count);document.getElementById('visitorCount').textContent='الزيارات: '+count}
-document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&['u','s','c','i','j'].includes(e.key.toLowerCase()))||(e.ctrlKey&&e.shiftKey)){alert("🚫 ممنوع استخدام هذه الأوامر!");location.href="about:blank"}});setInterval(()=>{if(window.outerWidth-window.innerWidth>100||window.outerHeight-window.innerHeight>100){alert("🚨 تم الكشف عن محاولة فحص الكود!");location.href="about:blank"}},1000);</script></body></html>
+        `;
+      })
+      .catch(error => {
+        container.innerHTML = `<h3>خطأ: ${escapeHtml(error.message)}</h3>`;
+      });
+  }
+
+  function copyCode() {
+    const codeElem = document.getElementById('result');
+    if (!codeElem) {
+      alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
+      return;
+    }
+    navigator.clipboard.writeText(codeElem.textContent)
+      .then(() => alert('تم نسخ الكود بنجاح!'))
+      .catch(() => alert('حدث خطأ أثناء النسخ.'));
+  }
+
+  function downloadCode() {
+    const codeElem = document.getElementById('result');
+    if (!codeElem) {
+      alert('لا يوجد كود للتنزيل. الرجاء الضغط على فحص أولاً.');
+      return;
+    }
+
+    const code = codeElem.textContent;
+    const url = document.getElementById('urlInput').value.trim();
+    let siteName = 'website';
+    try {
+      const parsedURL = new URL(url);
+      siteName = parsedURL.hostname.replace(/^www\./, '');
+    } catch {
+      alert('الرابط غير صالح.');
+      return;
+    }
+
+    const blob = new Blob([code], { type: 'text/html' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${siteName}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;")
+               .replace(/</g, "&lt;")
+               .replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;")
+               .replace(/'/g, "&#039;");
+  }
+
+  function updateVisitorCount() {
+    let count = localStorage.getItem('visitorCount');
+    if (!count) count = 1;
+    else count = parseInt(count) + 1;
+    localStorage.setItem('visitorCount', count);
+    document.getElementById('visitorCount').textContent = 'الزيارات: ' + count;
+  }
+
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && [
+        'u', 's', 'c', 'i', 'j'
+      ].includes(e.key.toLowerCase())) ||
+      (e.ctrlKey && e.shiftKey)
+    ) {
+      alert("🚫 ممنوع استخدام هذه الأوامر!");
+      location.href = "about:blank";
+    }
+  });
+
+  setInterval(() => {
+    if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+      alert("🚨 تم الكشف عن محاولة فحص الكود!");
+      location.href = "about:blank";
+    }
+  }, 1000);
+</script>
+</body>
+</html>
