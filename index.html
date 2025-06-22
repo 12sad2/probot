@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <titletفحص المواقع ✅⚙</title>
+  <title>هتلر عمك لجلب الاكواد</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -89,7 +89,6 @@
 <body>
   <div class="header">
     <h2>فاحص كود الموقع</h2>
-    <div class="subtitle">(للخروج من الموقع قم بالضغط على F11 أو R)</div>
   </div>
 
   <div id="visitorCount">الزيارات: 0</div>
@@ -105,20 +104,15 @@
   <div id="codeContainer"></div>
 
 <script>
-  
   document.addEventListener("DOMContentLoaded", () => {
     updateVisitorCount();
-    requestFullScreen();
+
+    if (window.top !== window.self) {
+      alert("🚫 لا يمكن تشغيل الموقع من داخل إطار خارجي (iframe)!");
+      window.top.location = "about:blank";
+    }
   });
 
-  function requestFullScreen() {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) elem.requestFullscreen();
-    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-    else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
-  }
-
-  
   function fetchSource() {
     const url = document.getElementById('urlInput').value.trim();
     const forbidden = [
@@ -129,9 +123,7 @@
     ];
 
     if (forbidden.includes(url)) {
-      document.getElementById('codeContainer').innerHTML = `
-        <h3 style="color:red;">❌ لا يمكنك نسخ كود هذا الموقع</h3>
-      `;
+      document.getElementById('codeContainer').innerHTML = `<h3 style="color:red;">❌ لا يمكنك نسخ كود هذا الموقع</h3>`;
       return;
     }
 
@@ -159,20 +151,17 @@
       });
   }
 
-  
   function copyCode() {
     const codeElem = document.getElementById('result');
     if (!codeElem) {
       alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
       return;
     }
-    const code = codeElem.textContent;
-    navigator.clipboard.writeText(code)
+    navigator.clipboard.writeText(codeElem.textContent)
       .then(() => alert('تم نسخ الكود بنجاح!'))
       .catch(() => alert('حدث خطأ أثناء النسخ.'));
   }
 
-  
   function downloadCode() {
     const codeElem = document.getElementById('result');
     if (!codeElem) {
@@ -182,7 +171,6 @@
 
     const code = codeElem.textContent;
     const url = document.getElementById('urlInput').value.trim();
-
     let siteName = 'website';
     try {
       const parsedURL = new URL(url);
@@ -209,35 +197,34 @@
                .replace(/'/g, "&#039;");
   }
 
-  
   function updateVisitorCount() {
     let count = localStorage.getItem('visitorCount');
-    if (!count) {
-      count = 1;
-    } else {
-      count = parseInt(count) + 1;
-    }
+    if (!count) count = 1;
+    else count = parseInt(count) + 1;
     localStorage.setItem('visitorCount', count);
     document.getElementById('visitorCount').textContent = 'الزيارات: ' + count;
   }
 
-  
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('keydown', e => {
     if (
-      e.key === 'F12' || e.key === 'r' || e.key === 'R' || 
-      (e.ctrlKey && (
-        e.key === 'u' || e.key === 's' || e.key === 'c' || 
-        e.key === 'U' || e.key === 'S' || e.key === 'C' || 
-        e.key === 'i' || e.key === 'I' || 
-        e.shiftKey
-      ))
+      e.key === 'F12' ||
+      (e.ctrlKey && [
+        'u', 's', 'c', 'i', 'j'
+      ].includes(e.key.toLowerCase())) ||
+      (e.ctrlKey && e.shiftKey)
     ) {
-      e.preventDefault();
       alert("🚫 ممنوع استخدام هذه الأوامر!");
       location.href = "about:blank";
     }
   });
+
+  setInterval(() => {
+    if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+      alert("🚨 تم الكشف عن محاولة فحص الكود!");
+      location.href = "about:blank";
+    }
+  }, 1000);
 </script>
 </body>
 </html>
