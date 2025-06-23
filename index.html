@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>الامن الاسبراني (فحص مواقع)</title>
+  <title>الامن الاسبراني ( فحص مواقع)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -81,12 +81,7 @@
       font-size: 14px;
       line-height: 1.4;
     }
-    .g-recaptcha {
-      margin: 20px auto;
-      display: inline-block;
-    }
   </style>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
   <div class="header">
@@ -95,11 +90,8 @@
 
   <h2>قم بوضع رابط موقع :</h2>
   <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
-  
-  <div class="g-recaptcha" data-sitekey="6LcqGWsrAAAAAIvV8BpQoZdvzAayaAQW8FQ5e_rC"></div>
-  
   <div class="buttons">
-    <button class="scan-btn" onclick="verifyRecaptchaAndFetch()">فحص</button>
+    <button class="scan-btn" onclick="fetchSource()">فحص</button>
     <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
     <button class="download-btn" onclick="downloadCode()">تنزيل الكود</button>
   </div>
@@ -115,34 +107,25 @@
     }
   });
 
-  function verifyRecaptchaAndFetch() {
-    const response = grecaptcha.getResponse();
-    if (!response) {
-      alert('يرجى إكمال التحقق من reCAPTCHA أولاً.');
-      return;
-    }
-    fetchSource();
-  }
-
   function fetchSource() {
-    const url = document.getElementById('urlInput').value.trim().toLowerCase();
-    const forbiddenDomains = [
-      'htmlsniffer.netlify.app',
-      'htmlsniffer.netlify.app/',
-     'https://515group.netlify.app/',
-     'https://515group.netlify.app'
+    const url = document.getElementById('urlInput').value.trim();
+
+    const forbidden = [
+      'https://htmlsniffer.netlify.app',
+      'https://htmlsniffer.netlify.app/',
+      'https://515group.netlify.app',
+      'https://515group.netlify.app/',
+      'https://tubular-parfait-58a9e4.netlify.app',
+      'https://tubular-parfait-58a9e4.netlify.app/',
+      'https://example1.com',
+      'https://example1.com/',
+      'https://example2.com',
+      'https://example2.com/'
     ];
 
-    try {
-      const parsedURL = new URL(url);
-      let host = parsedURL.hostname.toLowerCase();
-      if (forbiddenDomains.includes(host) || forbiddenDomains.includes(host + '/')) {
-        document.getElementById('codeContainer').innerHTML = `<h3 style="color:red;">❌ لا يمكنك فحص هذا الموقع</h3>`;
-        document.getElementById("malwareResult").innerHTML = `⚠️ هذا الموقع محمي من الفحص.`;
-        return;
-      }
-    } catch (e) {
-      alert('الرابط غير صالح.');
+    if (forbidden.includes(url)) {
+      document.getElementById('codeContainer').innerHTML = `<h3 style="color:red;">❌ لا يمكنك فحص هذا الموقع</h3>`;
+      document.getElementById("malwareResult").innerHTML = `⚠️ هذا الموقع محمي من الفحص.`;
       return;
     }
 
