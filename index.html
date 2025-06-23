@@ -2,21 +2,30 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>الامن السيبراني (فحص مواقع)</title>
+  <title>الامن الاسبراني (فحص مواقع)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      background-color: #0b1a2b;
+      background-color: #0b1a2b; /* أزرق غامق */
       padding: 40px;
       direction: rtl;
       text-align: center;
       user-select: none;
       margin: 0;
     }
+    .header {
+      margin-bottom: 20px;
+    }
     h2 {
-      color: #ff4d4d;
+      color: #ff4d4d; /* أحمر */
+      margin: 0;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #cccccc;
+      font-size: 14px;
+      margin-top: 6px;
     }
     input[type="text"] {
       width: 60%;
@@ -40,20 +49,28 @@
       margin: 5px;
     }
     .scan-btn {
-      background-color: #c0392b;
+      background-color: #c0392b; /* أحمر غامق */
     }
     .copy-btn {
-      background-color: #2980b9;
+      background-color: #2980b9; /* أزرق متوسط */
     }
     .download-btn {
-      background-color: #1f2e50;
+      background-color: #1f2e50; /* أزرق غامق إضافي */
     }
-    .g-recaptcha {
-      margin-top: 15px;
-      display: inline-block;
+    #codeContainer {
+      margin-top: 30px;
+      text-align: right;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #codeContainer h3, #malwareResult {
+      color: #ff4d4d; /* أحمر */
+      margin-bottom: 10px;
+      text-align: center;
     }
     pre {
-      background-color: #1b263b;
+      background-color: #1b263b; /* أزرق غامق للخلفية */
       color: #ffffff;
       padding: 15px;
       border-radius: 8px;
@@ -64,22 +81,25 @@
       font-size: 14px;
       line-height: 1.4;
     }
-    #codeContainer h3, #malwareResult {
-      color: #ff4d4d;
-      margin-bottom: 10px;
-      text-align: center;
+    .g-recaptcha {
+      margin: 20px auto;
+      display: inline-block;
     }
   </style>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
+  <div class="header">
+    <h2>فاحص كود الموقع</h2>
+  </div>
 
   <h2>قم بوضع رابط موقع :</h2>
   <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
-
+  
   <div class="g-recaptcha" data-sitekey="6LcqGWsrAAAAAIvV8BpQoZdvzAayaAQW8FQ5e_rC"></div>
-
+  
   <div class="buttons">
-    <button class="scan-btn" onclick="checkRecaptcha()">فحص</button>
+    <button class="scan-btn" onclick="verifyRecaptchaAndFetch()">فحص</button>
     <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
     <button class="download-btn" onclick="downloadCode()">تنزيل الكود</button>
   </div>
@@ -88,26 +108,39 @@
   <div id="malwareResult"></div>
 
 <script>
-  function checkRecaptcha() {
-    const recaptchaResponse = grecaptcha.getResponse();
-    if (!recaptchaResponse) {
-      alert("يرجى التحقق من أنك لست روبوتًا.");
+  document.addEventListener("DOMContentLoaded", () => {
+    if (window.top !== window.self) {
+      alert("🚫 لا يمكن تشغيل الموقع من داخل إطار خارجي (iframe)!");
+      window.top.location = "about:blank";
+    }
+  });
+
+  function verifyRecaptchaAndFetch() {
+    const response = grecaptcha.getResponse();
+    if (!response) {
+      alert('يرجى إكمال التحقق من reCAPTCHA أولاً.');
       return;
     }
     fetchSource();
   }
 
   function fetchSource() {
-    const url = document.getElementById('urlInput').value.trim();
-    const forbidden = [
-      'https://htmlsniffer.netlify.app',
-      'https://515group.netlify.app',
-      'https://tubular-parfait-58a9e4.netlify.app'
+    const url = document.getElementById('urlInput').value.trim().toLowerCase();
+    const forbiddenDomains = [
+      'htmlsniffer.netlify.app',
+      'htmlsniffer.netlify.app/'
     ];
 
-    if (forbidden.includes(url)) {
-      document.getElementById('codeContainer').innerHTML = `<h3 style="color:red;">❌ لا يمكنك فحص هذا الموقع</h3>`;
-      document.getElementById("malwareResult").innerHTML = `⚠️ هذا الموقع محمي من الفحص.`;
+    try {
+      const parsedURL = new URL(url);
+      let host = parsedURL.hostname.toLowerCase();
+      if (forbiddenDomains.includes(host) || forbiddenDomains.includes(host + '/')) {
+        document.getElementById('codeContainer').innerHTML = `<h3 style="color:red;">❌ لا يمكنك فحص هذا الموقع</h3>`;
+        document.getElementById("malwareResult").innerHTML = `⚠️ هذا الموقع محمي من الفحص.`;
+        return;
+      }
+    } catch (e) {
+      alert('الرابط غير صالح.');
       return;
     }
 
@@ -126,7 +159,10 @@
         return response.text();
       })
       .then(data => {
-        container.innerHTML = `<h3>عرض الكود</h3><pre id="result">${escapeHtml(data)}</pre>`;
+        container.innerHTML = `
+          <h3>عرض الكود</h3>
+          <pre id="result">${escapeHtml(data)}</pre>
+        `;
         analyzeForMalware(data);
       })
       .catch(error => {
@@ -138,9 +174,13 @@
   function decodeIfEncoded(text) {
     try {
       const decoded = atob(text);
-      if (/webhook|discord|fetch|xmlhttprequest/i.test(decoded)) return decoded;
-    } catch {}
-    return null;
+      if (/webhook|discord|fetch|xmlhttprequest/i.test(decoded)) {
+        return decoded;
+      }
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   function analyzeForMalware(code) {
@@ -163,12 +203,12 @@
       if (decoded) decodedMalicious.push(decoded);
     });
 
-    const found = suspiciousPatterns.some(p => p.test(code)) || decodedMalicious.length > 0;
+    const found = suspiciousPatterns.some(pattern => pattern.test(code)) || decodedMalicious.length > 0;
 
     if (found) {
       let msg = `🚨 تم اكتشاف محتوى مشبوه في الكود!`;
       if (decodedMalicious.length > 0) {
-        msg += `\n🕵️‍♂️ تم فك تشفير أكواد:\n\n${decodedMalicious.join("\n---\n")}`;
+        msg += `\n🕵️‍♂️ تم فك تشفير أكواد قد تحتوي على Webhook:\n\n${decodedMalicious.join("\n---\n")}`;
       }
       document.getElementById("malwareResult").innerText = msg;
     } else {
@@ -179,18 +219,18 @@
   function copyCode() {
     const codeElem = document.getElementById('result');
     if (!codeElem) {
-      alert('لا يوجد كود للنسخ.');
+      alert('لا يوجد كود للنسخ. الرجاء الضغط على فحص أولاً.');
       return;
     }
     navigator.clipboard.writeText(codeElem.textContent)
-      .then(() => alert('تم نسخ الكود!'))
+      .then(() => alert('تم نسخ الكود بنجاح!'))
       .catch(() => alert('حدث خطأ أثناء النسخ.'));
   }
 
   function downloadCode() {
     const codeElem = document.getElementById('result');
     if (!codeElem) {
-      alert('لا يوجد كود للتنزيل.');
+      alert('لا يوجد كود للتنزيل. الرجاء الضغط على فحص أولاً.');
       return;
     }
 
@@ -226,7 +266,9 @@
   document.addEventListener('keydown', e => {
     if (
       e.key === 'F12' ||
-      (e.ctrlKey && ['u', 's', 'c', 'i', 'j'].includes(e.key.toLowerCase())) ||
+      (e.ctrlKey && [
+        'u', 's', 'c', 'i', 'j'
+      ].includes(e.key.toLowerCase())) ||
       (e.ctrlKey && e.shiftKey)
     ) {
       alert("🚫 ممنوع استخدام هذه الأوامر!");
