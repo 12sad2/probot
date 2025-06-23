@@ -2,12 +2,12 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>فاحص كود الموقع</title>
+  <title>الامن الاسبراني ( فحص مواقع)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      background-color: #f0f0f0;
+      background-color: #0b1a2b; /* أزرق غامق */
       padding: 40px;
       direction: rtl;
       text-align: center;
@@ -18,12 +18,12 @@
       margin-bottom: 20px;
     }
     h2 {
-      color: #333;
+      color: #ff4d4d; /* أحمر */
       margin: 0;
       font-size: 28px;
     }
     .subtitle {
-      color: #666;
+      color: #cccccc;
       font-size: 14px;
       margin-top: 6px;
     }
@@ -32,7 +32,9 @@
       padding: 10px;
       font-size: 16px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid #999;
+      background-color: #1e2f44;
+      color: #fff;
     }
     .buttons {
       margin-top: 10px;
@@ -47,13 +49,13 @@
       margin: 5px;
     }
     .scan-btn {
-      background-color: green;
+      background-color: #c0392b; /* أحمر غامق */
     }
     .copy-btn {
-      background-color: #007bff;
+      background-color: #2980b9; /* أزرق متوسط */
     }
     .download-btn {
-      background-color: #003366;
+      background-color: #1f2e50; /* أزرق غامق إضافي */
     }
     #codeContainer {
       margin-top: 30px;
@@ -63,13 +65,13 @@
       margin-right: auto;
     }
     #codeContainer h3, #malwareResult {
-      color: #4b0082;
+      color: #ff4d4d; /* أحمر */
       margin-bottom: 10px;
       text-align: center;
     }
     pre {
-      background-color: #4b0082;
-      color: #fff;
+      background-color: #1b263b; /* أزرق غامق للخلفية */
+      color: #ffffff;
       padding: 15px;
       border-radius: 8px;
       max-height: 400px;
@@ -172,7 +174,7 @@
       /window\.location/i
     ];
 
-    const base64Pattern = /['\"]([A-Za-z0-9+/=]{20,})['\"]/g;
+    const base64Pattern = /['"]([A-Za-z0-9+/=]{20,})['"]/g;
     const matches = [...code.matchAll(base64Pattern)];
     let decodedMalicious = [];
 
