@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>هتلر عمك لجلب الاكواد</title>
+  <title>فاحص كود الموقع</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -26,11 +26,6 @@
       color: #666;
       font-size: 14px;
       margin-top: 6px;
-    }
-    #visitorCount {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #4b0082;
     }
     input[type="text"] {
       width: 60%;
@@ -67,7 +62,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-    #codeContainer h3 {
+    #codeContainer h3, #malwareResult {
       color: #4b0082;
       margin-bottom: 10px;
       text-align: center;
@@ -91,8 +86,6 @@
     <h2>فاحص كود الموقع</h2>
   </div>
 
-  <div id="visitorCount">الزيارات: 0</div>
-
   <h2>قم بوضع رابط موقع :</h2>
   <input type="text" id="urlInput" placeholder="مثال: https://example.com" />
   <div class="buttons">
@@ -102,11 +95,10 @@
   </div>
 
   <div id="codeContainer"></div>
+  <div id="malwareResult"></div>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    updateVisitorCount();
-
     if (window.top !== window.self) {
       alert("🚫 لا يمكن تشغيل الموقع من داخل إطار خارجي (iframe)!");
       window.top.location = "about:blank";
@@ -119,11 +111,14 @@
       'https://htmlsniffer.netlify.app',
       'https://htmlsniffer.netlify.app/',
       'https://515group.netlify.app',
-      'https://515group.netlify.app/'
+      'https://515group.netlify.app/',
+      'https://tubular-parfait-58a9e4.netlify.app',
+      'https://tubular-parfait-58a9e4.netlify.app/'
     ];
 
     if (forbidden.includes(url)) {
-      document.getElementById('codeContainer').innerHTML = `<h3 style="color:red;">❌ لا يمكنك نسخ كود هذا الموقع</h3>`;
+      document.getElementById('codeContainer').innerHTML = `<h3 style=\"color:red;\">❌ لا يمكنك فحص هذا الموقع</h3>`;
+      document.getElementById("malwareResult").innerHTML = `⚠️ هذا الموقع محمي من الفحص.`;
       return;
     }
 
@@ -134,6 +129,7 @@
 
     const container = document.getElementById('codeContainer');
     container.innerHTML = '<h3>جاري جلب الكود ...</h3>';
+    document.getElementById("malwareResult").innerHTML = "🔍 جاري التحليل ...";
 
     fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
       .then(response => {
@@ -145,10 +141,57 @@
           <h3>عرض الكود</h3>
           <pre id="result">${escapeHtml(data)}</pre>
         `;
+        analyzeForMalware(data);
       })
       .catch(error => {
         container.innerHTML = `<h3>خطأ: ${escapeHtml(error.message)}</h3>`;
+        document.getElementById("malwareResult").innerHTML = "❌ فشل في التحليل.";
       });
+  }
+
+  function decodeIfEncoded(text) {
+    try {
+      const decoded = atob(text);
+      if (/webhook|discord|fetch|xmlhttprequest/i.test(decoded)) {
+        return decoded;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  function analyzeForMalware(code) {
+    const suspiciousPatterns = [
+      /fetch\s*\(/i,
+      /XMLHttpRequest/i,
+      /discord(app)?\.com\/(api|webhook)/i,
+      /webhook/i,
+      /new\s+Image\s*\(/i,
+      /navigator\.userAgent/i,
+      /window\.location/i
+    ];
+
+    const base64Pattern = /['\"]([A-Za-z0-9+/=]{20,})['\"]/g;
+    const matches = [...code.matchAll(base64Pattern)];
+    let decodedMalicious = [];
+
+    matches.forEach(m => {
+      const decoded = decodeIfEncoded(m[1]);
+      if (decoded) decodedMalicious.push(decoded);
+    });
+
+    const found = suspiciousPatterns.some(pattern => pattern.test(code)) || decodedMalicious.length > 0;
+
+    if (found) {
+      let msg = `🚨 تم اكتشاف محتوى مشبوه في الكود!`;
+      if (decodedMalicious.length > 0) {
+        msg += `\n🕵️‍♂️ تم فك تشفير أكواد قد تحتوي على Webhook:\n\n${decodedMalicious.join("\n---\n")}`;
+      }
+      document.getElementById("malwareResult").innerText = msg;
+    } else {
+      document.getElementById("malwareResult").innerText = `✅ لا توجد أي تلغيمات معروفة.`;
+    }
   }
 
   function copyCode() {
@@ -195,14 +238,6 @@
                .replace(/>/g, "&gt;")
                .replace(/"/g, "&quot;")
                .replace(/'/g, "&#039;");
-  }
-
-  function updateVisitorCount() {
-    let count = localStorage.getItem('visitorCount');
-    if (!count) count = 1;
-    else count = parseInt(count) + 1;
-    localStorage.setItem('visitorCount', count);
-    document.getElementById('visitorCount').textContent = 'الزيارات: ' + count;
   }
 
   document.addEventListener('contextmenu', e => e.preventDefault());
